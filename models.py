@@ -1,6 +1,6 @@
 class Book:
-    def __init__(self,book_id, title, author, year_published, price, in_stock):
-        self.book_id = book_id
+    def __init__(self,isbn, title, author, year_published, price, in_stock):
+        self.isbn = isbn
         self.title = title
         self.author = author
         self.year_published = year_published
@@ -9,7 +9,7 @@ class Book:
 
     def to_dict(self):
         return {
-            "book_id": self.book_id,
+            "isbn": self.isbn,
             "title": self.title,
             "author": self.author,
             "year_published": self.year_published,

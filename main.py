@@ -1,6 +1,5 @@
 from models import Book
-from flask import Flask, jsonify
-import request
+from flask import Flask, jsonify , request
 from datetime import datetime
 
 app = Flask(__name__)
@@ -18,7 +17,7 @@ def Home():
     # Here you would normally handle the home route
 
 @app.route("/books", methods=["GET", "POST"])
-def books():
+def books_route():
     if request.method == "GET":
         books_data = [book.to_dict() for book in books]
         return jsonify(books_data), 200
@@ -36,7 +35,7 @@ def books():
         else:
             if data.get("isbn") is None or data.get("title") is None or data.get("author") is None or data.get("year_published") is None or data.get("price") is None or data.get("in_stock") is None:
                 return jsonify({"message": "Missing data for one or more fields."}), 400
-            elif data.get("year_published") < 1450 and data.get("year_published") > today:
+            elif data.get("year_published") < 1450 or data.get("year_published") > today:
                 return jsonify({"message": "Wrong year"}), 400
             elif data.get("price") < 0:
                 return jsonify({"message": "Price cannot be negative"}), 400
@@ -54,35 +53,33 @@ def books():
             return jsonify(new_book.to_dict()), 201
 @app.route("/books/<int:isbn>", methods=["GET", "PUT", "DELETE"])
 def book_detail(isbn):
-    try:
-        for book in books:
-            if book.isbn == isbn:
-                if request.method == "GET":
-                    return jsonify(book.to_dict()), 200
-                elif request.method == "PUT":
-                    data = request.get_json()
-                    today = datetime.now().year
-                    if data.get("title") is not None:
-                        book.title = data.get("title")
-                    if data.get("author") is not None:
-                        book.author = data.get("author")
-                    if data.get("year_published") is not None:
-                        if data.get("year_published") < 1450 or data.get("year_published") > today:
-                            return jsonify({"message": "Wrong year"}), 400
-                        book.year_published = data.get("year_published")
-                    if data.get("price") is not None:
-                        if data.get("price") < 0:
-                            return jsonify({"message": "Price cannot be negative"}), 400
-                        book.price = data.get("price")
-                    if data.get("in_stock") is not None:
-                        if data.get("in_stock") < 0:
-                            return jsonify({"message": "In-stock quantity cannot be negative"}), 400
-                        book.in_stock = data.get("in_stock")
-                    return jsonify(book.to_dict()), 200
-                elif request.method == "DELETE":
-                    books.remove(book)
-                    return jsonify({"message": "Book deleted"}), 200
-    catch(exception e):
-        return jsonify({"message": "Book not found"}), 404
+    for book in books:
+        if book.isbn == isbn:
+            if request.method == "GET":
+                return jsonify(book.to_dict()), 200
+            elif request.method == "PUT":
+                data = request.get_json()
+                today = datetime.now().year
+                if data.get("title") is not None:
+                    book.title = data.get("title")
+                if data.get("author") is not None:
+                    book.author = data.get("author")
+                if data.get("year_published") is not None:
+                    if data.get("year_published") < 1450 or data.get("year_published") > today:
+                        return jsonify({"message": "Wrong year"}), 400
+                    book.year_published = data.get("year_published")
+                if data.get("price") is not None:
+                    if data.get("price") < 0:
+                        return jsonify({"message": "Price cannot be negative"}), 400
+                    book.price = data.get("price")
+                if data.get("in_stock") is not None:
+                    if data.get("in_stock") < 0:
+                        return jsonify({"message": "In-stock quantity cannot be negative"}), 400
+                    book.in_stock = data.get("in_stock")
+                return jsonify(book.to_dict()), 200
+            elif request.method == "DELETE":
+                books.remove(book)
+                return jsonify({"message": "Book deleted"}), 200
+    return jsonify({"message": "Book not found"}), 404
     
             
